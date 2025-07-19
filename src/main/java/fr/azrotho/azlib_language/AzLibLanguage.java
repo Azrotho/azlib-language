@@ -13,15 +13,42 @@ public class AzLibLanguage {
     private Map<String, Language> languages;
     String defaultLanguageID;
     File defaultLanguageFile;
+    private Map<String, String> constants;
 
     public AzLibLanguage(String defaultLanguageID, File defaultLanguageFile) {
         this.languages = new HashMap<>();
         this.defaultLanguageID = defaultLanguageID;
         this.defaultLanguageFile = defaultLanguageFile;
+        this.constants = new HashMap<>();
     }
 
     public void init() {
         register(this.defaultLanguageFile);
+    }
+
+    public void addConstant(String key, String value) {
+        if (this.constants.containsKey(key)) {
+            throw new RuntimeException("Constant already exists: " + key);
+        }
+        this.constants.put(key, value);
+    }
+
+    public String getConstant(String key) {
+        if (!this.constants.containsKey(key)) {
+            throw new RuntimeException("Constant not found: " + key);
+        }
+        return this.constants.get(key);
+    }
+
+    public boolean hasConstant(String key) {
+        return this.constants.containsKey(key);
+    }
+
+    public void removeConstant(String key) {
+        if (!this.constants.containsKey(key)) {
+            throw new RuntimeException("Constant not found: " + key);
+        }
+        this.constants.remove(key);
     }
 
     public void register(File file) {
@@ -120,6 +147,51 @@ public class AzLibLanguage {
             }
         }
         return node.asText();
+    }
+
+    public String getText(String langID, String langPath, Map<String, String> vars) {
+        String translated_string = getText(langID, langPath);
+        if (translated_string == null || translated_string.isEmpty()) {
+            return translated_string;
+        }
+        return replace_text(translated_string, vars);
+    }
+
+    public String getText(String langID, String langPath, String fallback, Map<String, String> vars) {
+        String translated_string = getText(langID, langPath, fallback);
+        if (translated_string == null || translated_string.isEmpty()) {
+            return translated_string;
+        }
+        return replace_text(translated_string, vars);
+    }
+
+    public String getTextWithoutException(String langID, String langPath, Map<String, String> vars) {
+        String translated_string = getTextWithoutException(langID, langPath);
+        if (translated_string == null || translated_string.isEmpty()) {
+            return translated_string;
+        }
+        return replace_text(translated_string, vars);
+    }
+
+
+    public String replace_text(String translated_string, Map<String, String> vars) {
+        // This method will replace variables in the translated string with their values from the vars map.
+        // Example: "Hello #player_name#!" with vars {"name": "Azrotho"} will return "Hello Azrotho!".
+        // Var as use in priority and then constants.
+        if (translated_string == null || translated_string.isEmpty()) {
+            return translated_string;
+        }
+        for (Map.Entry<String, String> entry : vars.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            translated_string = translated_string.replace("#" + key + "#", value);
+        }
+        for (Map.Entry<String, String> entry : this.constants.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            translated_string = translated_string.replace("#" + key + "#", value);
+        }
+        return translated_string;
     }
 
     public static boolean exists(JsonNode root, String pointer) {
