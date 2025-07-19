@@ -1,6 +1,7 @@
 package fr.azrotho.azlib_language;
 
-import com.fasterxml.jackson.databind.JsonNode;
+
+import tools.jackson.databind.JsonNode;
 
 public class Language {
     private String id;

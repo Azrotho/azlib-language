@@ -1,7 +1,8 @@
 package fr.azrotho.azlib_language;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.util.ArrayList;
